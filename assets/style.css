@@ -1,0 +1,65 @@
+header{
+  background-color: #99ccff;
+}
+
+/* Fonts */
+.fira-font {
+  font-family: 'Fira Sans', sans-serif;
+}
+
+.merri-font{
+  font-family: 'Merriweather', serif;
+}
+
+.anton-font{
+  font-family: 'Anton', sans-serif;
+}
+
+.noto-font{
+  font-family: 'Noto Sans TC', sans-serif;
+}
+
+#view-highscores{
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+#view-highscores a{
+  color:white;
+  text-decoration: none;
+  font-size: 25px;
+  
+}
+
+.navbar-span{
+  font-size: 25px;
+  color: white;
+  padding: 20px;
+}
+
+@media screen and (max-width: 575px) {
+  /* The body's bg color will be #333 */
+  #view-highscores {
+    justify-content: center;
+  }
+  .navbar-span {
+    justify-content: center;
+    /* background-color: rgb(89, 170, 165); */
+  }
+}
+
+.padding {
+  padding: 3% 3%;
+  border: #f8f9fa solid 1px;
+  margin: 5% 0;
+  background: white;
+  /* height: 100vh; */
+}
+
+.show-question{
+  display:block;
+}
+
+.hide-question{
+  display:none;
+}

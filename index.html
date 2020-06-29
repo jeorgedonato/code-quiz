@@ -1,16 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Anton&family=Fira+Sans:ital,wght@0,400;0,500;1,400&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
     integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <link rel="stylesheet" href="assets/style.css">
   <title>Code Quiz</title>
 </head>
-<body>
-  <header></header>
 
+<body>
+  <!-- Navbar -->
+  <header class="noto-font">
+    <div class="row no-gutters ">
+      <div class="col-12 sticky-top">
+        <nav class="navbar navbar-name p-0 ">
+          <span class="navbar-brand mb-0 h1 navbar-span ml-5">Javascript Quiz</span>
+        </nav>
+      </div>
+      <!-- <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 sticky-top">
+        <nav class="navbar" id="view-highscores">
+          <a href="#">View Highscores</a>
+        </nav>
+      </div> -->
+    </div>
+  </header>
+  <!-- Navbar -->
+
+  <!-- Quiz Section -->
+  <section class="container">
+    <div class="padding">
+      <div class="row">
+        <div class="col-8">
+          <h5>
+            Javascript Quiz
+          </h5>
+          <div class="start-btn-div"><button class="btn btn-info" id="start-btn">Start the Quiz</button></div>
+          <div class="quiz-area">
+          </div>
+          <div id="alert-area"></div>
+        </div>
+        <aside>
+          <div class="col-4">
+            <h5>
+              Highscore
+            </h5>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">First</th>
+                  <th scope="col">Last</th>
+                  <th scope="col">Handle</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">1</th>
+                  <td>Mark</td>
+                  <td>Otto</td>
+                  <td>@mdo</td>
+                </tr>
+                <tr>
+                  <th scope="row">2</th>
+                  <td>Jacob</td>
+                  <td>Thornton</td>
+                  <td>@fat</td>
+                </tr>
+                <tr>
+                  <th scope="row">3</th>
+                  <td>Larry</td>
+                  <td>the Bird</td>
+                  <td>@twitter</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+  <!-- Quiz Section -->
   <script src="assets/script.js"></script>
 </body>
+
 </html>

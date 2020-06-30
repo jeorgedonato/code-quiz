@@ -63,3 +63,7 @@ header{
 .hide-question{
   display:none;
 }
+
+.li-margin{
+  margin: 10px 0;
+}

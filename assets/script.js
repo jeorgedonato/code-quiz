@@ -41,9 +41,11 @@ let quizArea = document.querySelector(".quiz-area");
 let currentScore = 0;
 let correctAnswers = 0;
 let wrongAnswers = 0;
-let answeredQuestions = 0;
+let answeredQuestions = 1;
 const startBtn = document.querySelector("#start-btn");
 const startDiv = document.querySelector(".start-btn-div");
+const scoreBody = document.querySelector("#score-body");
+// const startAnotherBtn = document.querySelector("#start-another-btn");
 
 // Shuffle Array
 // Source https://www.rosettacode.org/wiki/Knuth_shuffle
@@ -71,11 +73,6 @@ let getRandomMotivation = () => {
 //Answer Checker
 quizArea.addEventListener("click", function (event) {
   let target = event.target;
-
-  // console.log(`${answeredQuestions} - ${quizBank.length}`)
-  // if (answeredQuestions === quizBank.length) {
-  //   return;
-  // }
   if (target.matches("li") === true) {
     let arrId = target.getAttribute("data-id")
     let choice = target.getAttribute("data-choice");
@@ -93,19 +90,116 @@ quizArea.addEventListener("click", function (event) {
       alertArea.innerHTML = `<div class="alert alert-danger" id="alert-clip" role="alert">The answer is wrong! Come on now!</div>`;
       setTimeout(function () { document.getElementById("alert-clip").style.display = "none"; }, 600);
     }
-    document.querySelector(`#question_${index}`).setAttribute("style", "display:none;");
-    document.querySelector(`#question_${parseInt(index) + 1}`).setAttribute("style", "display:block;");
-    // console.log(nextQuestion)
+    if (answeredQuestions < quizBank.length) {
+      document.querySelector(`#question_${index}`).setAttribute("style", "display:none;");
+      document.querySelector(`#question_${parseInt(index) + 1}`).setAttribute("style", "display:block;");
+    } else {
+      renderPostScore();
+      renderHighScore();
+    }
     answeredQuestions++;
-    // console.log(`Score is ${currentScore}`)
   }
+
+  //Start Another Button
+  if (target.matches("button.start-another-btn")) {
+    quizMaker();
+    startDiv.setAttribute("style", "display:none;");
+    const questionOne = document.getElementById("question_1");
+    questionOne.setAttribute("style", "display:block;");
+  }
+  //Start Another Button
 });
 //Answer Checker
+
+//Store Score
+let storeScore = (initials) => {
+  let storedScores = JSON.parse(localStorage.getItem("scores"));
+  const scoreObjInit = {
+    score: currentScore,
+    correctAnswers: correctAnswers,
+    wrongAnswers: wrongAnswers,
+    initials: initials,
+    answeredQuestions: answeredQuestions
+  };
+  if (storedScores === null) {
+    storedScores = [];
+    storedScores.push(scoreObjInit);
+  } else {
+    storedScores.push(scoreObjInit);
+  }
+  localStorage.setItem("scores", JSON.stringify(storedScores));
+  return "Scores has been stored";
+}
+//Store Score
+
+//renderHighScore
+let renderHighScore = () => {
+  scoreBody.innerHTML = "";
+  let storedScores = JSON.parse(localStorage.getItem("scores"));
+  if (storedScores !== null) {
+    storedScores.sort((a, b) => (a.score < b.score) ? 1 : -1)
+    let iterator = 1;
+    for (let i = 0; i < storedScores.length; i++) {
+      const scoreTr = document.createElement("tr");
+      scoreTr.innerHTML = `<th scope="row">${iterator}</th>
+      <th >${storedScores[i].initials}</th>
+      <th >${storedScores[i].score}</th>`
+      scoreBody.appendChild(scoreTr);
+      iterator++;
+    }
+  }
+};
+//renderHighScore
+renderHighScore()
+
+//Reset Score 
+let resetScore = () => {
+  answeredQuestions = 1;
+  correctAnswers = 0;
+  wrongAnswers = 0;
+  currentScore = 0;
+};
+//Reset Score
+
+let renderPostScore = () => {
+  quizArea.innerHTML = "";
+  storeScore("test");
+  let postScoreDiv = document.createElement("div");
+  postScoreDiv.setAttribute("class", "card");
+  quizArea.appendChild(postScoreDiv);
+  let cardBody = document.createElement("div");
+  cardBody.setAttribute("class", "card-body");
+  postScoreDiv.appendChild(cardBody);
+  let cardTitle = document.createElement("h5");
+  cardTitle.textContent = "Quiz has ended!";
+  cardTitle.setAttribute("class", "card-title");
+  let cardInput = document.createElement("input");
+  cardInput.setAttribute("type", "text");
+  cardInput.setAttribute("class", "form-control");
+  cardInput.setAttribute("id", "card-input");
+  cardInput.setAttribute("placeholder", "Your initials here");
+  cardBody.appendChild(cardTitle);
+  cardBody.appendChild(cardInput);
+  let cardUl = document.createElement("ul");
+  cardUl.setAttribute("class", "list-group list-group-flush");
+  cardUl.innerHTML = `<li class="list-group-item">Score : ${currentScore}</li>
+  <li class="list-group-item">Correct Answers : ${correctAnswers}</li>
+  <li class="list-group-item">Wrong Answers : ${wrongAnswers}</li>`
+  postScoreDiv.appendChild(cardUl);
+  let cardBodyTwo = document.createElement("div");
+  cardBodyTwo.setAttribute("class", "card-body");
+  cardBodyTwo.innerHTML = `
+    <button class="btn btn-info start-another-btn" >Start Another Quiz</button>`
+  postScoreDiv.appendChild(cardBodyTwo);
+};
+
 
 
 //Quiz Maker
 let quizMaker = () => {
   const shuffledQuiz = knuthShuffle(quizBank);
+  quizArea.innerHTML = "";
+  resetScore();
   for (let i = 0; i < shuffledQuiz.length; i++) {
     let questionDiv = document.createElement("div");
     questionDiv.setAttribute("id", `question_${i + 1}`);
@@ -125,8 +219,6 @@ let quizMaker = () => {
         choiceLi.setAttribute("data-id", shuffledQuiz[i].id);
         choiceLi.setAttribute("data-choice", shuffledQuiz[i].choices[j]);
         choiceLi.setAttribute("data-index", i + 1);
-        // choiceLi.innerHTML = `<button class="btn btn-primary" id="${shuffledQuiz[i].id}_${shuffledQuiz[i].choices[j]}_${i + 1}" onclick="answerChecker(this.id)">${shuffleChoices[j]}</button>`;
-        // choiceLi.appendChild(choiceBtn)
         choiceUl.appendChild(choiceLi);
       }
       questionDiv.appendChild(choiceUl);
@@ -141,6 +233,6 @@ startBtn.addEventListener("click", function (event) {
   quizMaker();
   startDiv.setAttribute("style", "display:none;");
   const questionOne = document.getElementById("question_1");
-  questionOne.setAttribute("style", "display:block;")
+  questionOne.setAttribute("style", "display:block;");
 });
 //start button event

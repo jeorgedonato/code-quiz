@@ -40,7 +40,11 @@
           <h5>
             Javascript Quiz
           </h5>
-          <div class="start-btn-div"><button class="btn btn-info" id="start-btn">Start the Quiz</button></div>
+          <div class="start-btn-div" style="text-align: center;margin-top: 15px;">
+            <strong>Welcome to the Javascript Quiz!</strong> <br>
+            <p>Good Luck! Have fun!</p>
+            <button class="btn btn-info" id="start-btn" style="margin-top: 10px;">Start the Quiz</button>
+          </div>
           <div class="quiz-area">
           </div>
           <div id="alert-area"></div>
@@ -49,6 +53,7 @@
           <h5>
             Highscore
           </h5>
+          <button class="float-right btn btn-info" style="margin-top: -40px;margin-bottom: 10px;">Clear Scores</button>
           <table class="table">
             <thead>
               <tr>
@@ -57,12 +62,8 @@
                 <th scope="col">Score</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <th scope="row">1</th>
-                <td>JJD</td>
-                <td>@twitter</td>
-              </tr>
+            <tbody id="score-body">
+             
             </tbody>
           </table>
         </aside>

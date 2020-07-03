@@ -40,6 +40,8 @@ const startBtn = document.querySelector("#start-btn");
 const startDiv = document.querySelector(".start-btn-div");
 const scoreBody = document.querySelector("#score-body");
 let quizTimerDiv = document.querySelector("#quiz-timer");
+//Declaring a variable to put the setinterval to be accessible globally
+let quizStartTimer;
 //Declaring Variables
 
 // Shuffle Array
@@ -73,7 +75,8 @@ let storeScore = (initials) => {
     correctAnswers: correctAnswers,
     wrongAnswers: wrongAnswers,
     initials: initials,
-    answeredQuestions: answeredQuestions
+    answeredQuestions: answeredQuestions,
+    timeLeft: quizCountdown
   };
   if (storedScores === null) {
     storedScores = [];
@@ -119,50 +122,12 @@ let resetScore = () => {
 };
 //Reset Score
 
-//render post Score
-let renderPostScore = (endType) => {
-  quizArea.innerHTML = "";
-  if (endType === "end") {
-    console.log("clear interval");
-    clearInterval(quizStartTimer);
-  }
-  let postScoreDiv = document.createElement("div");
-  postScoreDiv.setAttribute("class", "card");
-  quizArea.appendChild(postScoreDiv);
-  let cardBody = document.createElement("div");
-  cardBody.setAttribute("class", "card-body");
-  postScoreDiv.appendChild(cardBody);
-  let cardTitle = document.createElement("h5");
-  cardTitle.textContent = `${endType === "end" ? "Quiz has ended!" : "Time's Up!"}`;
-  cardTitle.setAttribute("class", "card-title");
-  let cardInput = document.createElement("input");
-  cardInput.setAttribute("type", "text");
-  cardInput.setAttribute("class", "form-control");
-  cardInput.setAttribute("id", "card-input");
-  cardInput.setAttribute("placeholder", "Your initials here");
-  cardBody.appendChild(cardTitle);
-  cardBody.appendChild(cardInput);
-  let cardUl = document.createElement("ul");
-  cardUl.setAttribute("class", "list-group list-group-flush");
-  cardUl.innerHTML = `<li class="list-group-item">Score : ${currentScore}</li>
-  <li class="list-group-item">Correct Answers : ${correctAnswers}</li>
-  <li class="list-group-item">Wrong Answers : ${wrongAnswers}</li>`
-  postScoreDiv.appendChild(cardUl);
-  let cardBodyTwo = document.createElement("div");
-  cardBodyTwo.setAttribute("class", "card-body");
-  cardBodyTwo.innerHTML = `
-    <button class="btn btn-info start-another-btn" >Start Another Quiz</button>`
-  postScoreDiv.appendChild(cardBodyTwo);
-};
-//render post Score
-
-
 //Quiz Maker
 let quizMaker = () => {
   const shuffledQuiz = knuthShuffle(quizBank);
   quizArea.innerHTML = "";
   resetScore();
-  quizStartTimer();
+  quizStartTimer = setInterval(() => { quizTimerF() }, 1000);;
   quizArea.setAttribute("class", "card")
   for (let i = 0; i < shuffledQuiz.length; i++) {
     let questionDiv = document.createElement("div");
@@ -197,40 +162,82 @@ let quizMaker = () => {
 //Quiz
 
 //Start Quiz Timer
-let quizStartTimer = () => {
-  setInterval(() => {
-    quizCountdown--;
-    quizTimerDiv.innerHTML = `<strong>Time left : ${quizCountdown} secs</strong>`;
 
-    if (quizCountdown === 0) {
-      clearInterval(quizStartTimer);
-      renderPostScore("time");
-      renderHighScore();
-    }
-  }, 1000);
+//Quiz timer function
+let quizTimerF = () => {
+  quizCountdown--;
+  quizTimerDiv.innerHTML = `<strong>Time left : ${quizCountdown} secs</strong>`;
+
+  if (quizCountdown === 0) {
+    stopInterval();
+    renderPostScore("time");
+    renderHighScore();
+  }
+}
+//Quiz timer function
+
+//Stop interval
+let stopInterval = () => {
+  clearInterval(quizStartTimer)
+}
+//Stop Interval
+
+//render post Score
+let renderPostScore = (endType) => {
+  quizArea.innerHTML = "";
+  if (endType === "end") {
+    stopInterval();
+  }
+  let postScoreDiv = document.createElement("div");
+  postScoreDiv.setAttribute("class", "card");
+  quizArea.appendChild(postScoreDiv);
+  let cardBody = document.createElement("div");
+  cardBody.setAttribute("class", "card-body");
+  postScoreDiv.appendChild(cardBody);
+  let cardTitle = document.createElement("h5");
+  cardTitle.textContent = `${endType === "end" ? "Quiz has ended!" : "Time's Up!"}`;
+  cardTitle.setAttribute("class", "card-title");
+  let cardInput = document.createElement("input");
+  cardInput.setAttribute("type", "text");
+  cardInput.setAttribute("class", "form-control");
+  cardInput.setAttribute("id", "card-input");
+  cardInput.setAttribute("placeholder", "Your initials here");
+  cardBody.appendChild(cardTitle);
+  cardBody.appendChild(cardInput);
+  let cardUl = document.createElement("ul");
+  cardUl.setAttribute("class", "list-group list-group-flush");
+  cardUl.innerHTML = `<li class="list-group-item">Score : ${currentScore}</li>
+  <li class="list-group-item">Correct Answers : ${correctAnswers}</li>
+  <li class="list-group-item">Wrong Answers : ${wrongAnswers}</li>`
+  postScoreDiv.appendChild(cardUl);
+  let cardBodyTwo = document.createElement("div");
+  cardBodyTwo.setAttribute("class", "card-body");
+  cardBodyTwo.innerHTML = `
+    <button class="btn btn-info start-another-btn" >Start Another Quiz</button>`
+  postScoreDiv.appendChild(cardBodyTwo);
 };
-//Start Quiz Timer
+//render post Score
 
 //Answer Checker
 quizArea.addEventListener("click", (event) => {
   let target = event.target;
+  const alertArea = document.querySelector("#alert-area");
   if (target.matches("li.li-choice") === true) {
     let arrId = target.getAttribute("data-id")
     let choice = target.getAttribute("data-choice");
     let index = target.getAttribute("data-index");
     const correctArr = quizBank.find(element => element.id == arrId);
     const correctAnswer = correctArr.answer;
-    const alertArea = document.querySelector("#alert-area");
     if (correctAnswer === choice) {
       currentScore += 5;
       correctAnswers++;
       alertArea.innerHTML = `<div class="alert alert-success" id="alert-clip" role="alert">You're ${getRandomMotivation()}! Keep up the good work!</div>`;
-      setTimeout(function () { document.getElementById("alert-clip").style.display = "none"; }, 600);
+      setTimeout(() => { document.getElementById("alert-clip").style.display = "none"; }, 600);
     } else {
       wrongAnswers++;
       quizCountdown -= 3;
       alertArea.innerHTML = `<div class="alert alert-danger" id="alert-clip" role="alert">The answer is wrong! Come on now!</div>`;
-      setTimeout(function () { document.getElementById("alert-clip").style.display = "none"; }, 600);
+      setTimeout(() => { document.getElementById("alert-clip").style.display = "none"; }, 600);
     }
     if (answeredQuestions < quizBank.length) {
       document.querySelector(`#question_${index}`).setAttribute("style", "display:none;");
@@ -253,7 +260,8 @@ quizArea.addEventListener("click", (event) => {
       const questionOne = document.getElementById("question_1");
       questionOne.setAttribute("style", "display:block;");
     } else {
-      alert("Please provide your initials");
+      alertArea.innerHTML = `<div class="alert alert-danger" id="alert-clip" role="alert">Please provide your initials</div>`;
+      setTimeout(() => { document.getElementById("alert-clip").style.display = "none"; }, 600);
     }
   }
   //Start Another Button

@@ -1,11 +1,4 @@
-//Random Number Picker
-let randomNumPicker = () => {
-  let num = Math.floor(Math.random()
-    * quizObj.length + 1);
-  return num;
-}
-//Random
-
+//Declaring Variables
 let quizBank = [
   {
     id: 1,
@@ -37,15 +30,17 @@ let quizBank = [
   }];
 
 let highScores = new Object;
-let quizArea = document.querySelector(".quiz-area");
+let quizArea = document.querySelector("#quiz-area");
 let currentScore = 0;
 let correctAnswers = 0;
 let wrongAnswers = 0;
 let answeredQuestions = 1;
+let quizCountdown = 60;
 const startBtn = document.querySelector("#start-btn");
 const startDiv = document.querySelector(".start-btn-div");
 const scoreBody = document.querySelector("#score-body");
-// const startAnotherBtn = document.querySelector("#start-another-btn");
+let quizTimerDiv = document.querySelector("#quiz-timer");
+//Declaring Variables
 
 // Shuffle Array
 // Source https://www.rosettacode.org/wiki/Knuth_shuffle
@@ -69,47 +64,6 @@ let getRandomMotivation = () => {
   return motivationArr[char];
 }
 //Random Motivation
-
-//Answer Checker
-quizArea.addEventListener("click", function (event) {
-  let target = event.target;
-  if (target.matches("li") === true) {
-    let arrId = target.getAttribute("data-id")
-    let choice = target.getAttribute("data-choice");
-    let index = target.getAttribute("data-index");
-    const correctArr = quizBank.find(element => element.id == arrId);
-    const correctAnswer = correctArr.answer;
-    const alertArea = document.querySelector("#alert-area");
-    if (correctAnswer === choice) {
-      currentScore += 5;
-      correctAnswers++;
-      alertArea.innerHTML = `<div class="alert alert-success" id="alert-clip" role="alert">You're ${getRandomMotivation()}! Keep up the good work!</div>`;
-      setTimeout(function () { document.getElementById("alert-clip").style.display = "none"; }, 600);
-    } else {
-      wrongAnswers++;
-      alertArea.innerHTML = `<div class="alert alert-danger" id="alert-clip" role="alert">The answer is wrong! Come on now!</div>`;
-      setTimeout(function () { document.getElementById("alert-clip").style.display = "none"; }, 600);
-    }
-    if (answeredQuestions < quizBank.length) {
-      document.querySelector(`#question_${index}`).setAttribute("style", "display:none;");
-      document.querySelector(`#question_${parseInt(index) + 1}`).setAttribute("style", "display:block;");
-    } else {
-      renderPostScore();
-      renderHighScore();
-    }
-    answeredQuestions++;
-  }
-
-  //Start Another Button
-  if (target.matches("button.start-another-btn")) {
-    quizMaker();
-    startDiv.setAttribute("style", "display:none;");
-    const questionOne = document.getElementById("question_1");
-    questionOne.setAttribute("style", "display:block;");
-  }
-  //Start Another Button
-});
-//Answer Checker
 
 //Store Score
 let storeScore = (initials) => {
@@ -137,6 +91,7 @@ let renderHighScore = () => {
   scoreBody.innerHTML = "";
   let storedScores = JSON.parse(localStorage.getItem("scores"));
   if (storedScores !== null) {
+    document.querySelector("#clear-scores").setAttribute("style", "display:block;");
     storedScores.sort((a, b) => (a.score < b.score) ? 1 : -1)
     let iterator = 1;
     for (let i = 0; i < storedScores.length; i++) {
@@ -147,10 +102,12 @@ let renderHighScore = () => {
       scoreBody.appendChild(scoreTr);
       iterator++;
     }
+  } else {
+    document.querySelector("#clear-scores").setAttribute("style", "display:none;");
   }
 };
 //renderHighScore
-renderHighScore()
+
 
 //Reset Score 
 let resetScore = () => {
@@ -158,12 +115,17 @@ let resetScore = () => {
   correctAnswers = 0;
   wrongAnswers = 0;
   currentScore = 0;
+  quizCountdown = 60;
 };
 //Reset Score
 
-let renderPostScore = () => {
+//render post Score
+let renderPostScore = (endType) => {
   quizArea.innerHTML = "";
-  storeScore("test");
+  if (endType === "end") {
+    console.log("clear interval");
+    clearInterval(quizStartTimer);
+  }
   let postScoreDiv = document.createElement("div");
   postScoreDiv.setAttribute("class", "card");
   quizArea.appendChild(postScoreDiv);
@@ -171,7 +133,7 @@ let renderPostScore = () => {
   cardBody.setAttribute("class", "card-body");
   postScoreDiv.appendChild(cardBody);
   let cardTitle = document.createElement("h5");
-  cardTitle.textContent = "Quiz has ended!";
+  cardTitle.textContent = `${endType === "end" ? "Quiz has ended!" : "Time's Up!"}`;
   cardTitle.setAttribute("class", "card-title");
   let cardInput = document.createElement("input");
   cardInput.setAttribute("type", "text");
@@ -192,7 +154,7 @@ let renderPostScore = () => {
     <button class="btn btn-info start-another-btn" >Start Another Quiz</button>`
   postScoreDiv.appendChild(cardBodyTwo);
 };
-
+//render post Score
 
 
 //Quiz Maker
@@ -200,12 +162,18 @@ let quizMaker = () => {
   const shuffledQuiz = knuthShuffle(quizBank);
   quizArea.innerHTML = "";
   resetScore();
+  quizStartTimer();
+  quizArea.setAttribute("class", "card")
   for (let i = 0; i < shuffledQuiz.length; i++) {
     let questionDiv = document.createElement("div");
     questionDiv.setAttribute("id", `question_${i + 1}`);
     questionDiv.setAttribute("style", "display:none;");
-    questionDiv.textContent = shuffledQuiz[i].question;
+    questionDiv.setAttribute("class", "card-body");
     quizArea.appendChild(questionDiv);
+    let strongQ = document.createElement("strong");
+    strongQ.setAttribute("class", "card-title");
+    strongQ.textContent = shuffledQuiz[i].question;
+    questionDiv.appendChild(strongQ);
     if (shuffledQuiz[i].type === "Multiple") {
       let choiceUl = document.createElement("ul");
       choiceUl.setAttribute("class", "list-group")
@@ -215,7 +183,7 @@ let quizMaker = () => {
         choiceLi.setAttribute("class", "list-group-item");
         // let choiceBtn = document.createElement("button");
         choiceLi.textContent = shuffleChoices[j];
-        choiceLi.setAttribute("class", "list-group-item list-group-item-action list-group-item-primary li-margin li-choice");
+        choiceLi.setAttribute("class", "list-group-item list-group-item-action list-group-item-info li-margin li-choice");
         choiceLi.setAttribute("data-id", shuffledQuiz[i].id);
         choiceLi.setAttribute("data-choice", shuffledQuiz[i].choices[j]);
         choiceLi.setAttribute("data-index", i + 1);
@@ -224,11 +192,78 @@ let quizMaker = () => {
       questionDiv.appendChild(choiceUl);
     }
   }
+
 };
 //Quiz
 
+//Start Quiz Timer
+let quizStartTimer = () => {
+  setInterval(() => {
+    quizCountdown--;
+    quizTimerDiv.innerHTML = `<strong>Time left : ${quizCountdown} secs</strong>`;
+
+    if (quizCountdown === 0) {
+      clearInterval(quizStartTimer);
+      renderPostScore("time");
+      renderHighScore();
+    }
+  }, 1000);
+};
+//Start Quiz Timer
+
+//Answer Checker
+quizArea.addEventListener("click", (event) => {
+  let target = event.target;
+  if (target.matches("li.li-choice") === true) {
+    let arrId = target.getAttribute("data-id")
+    let choice = target.getAttribute("data-choice");
+    let index = target.getAttribute("data-index");
+    const correctArr = quizBank.find(element => element.id == arrId);
+    const correctAnswer = correctArr.answer;
+    const alertArea = document.querySelector("#alert-area");
+    if (correctAnswer === choice) {
+      currentScore += 5;
+      correctAnswers++;
+      alertArea.innerHTML = `<div class="alert alert-success" id="alert-clip" role="alert">You're ${getRandomMotivation()}! Keep up the good work!</div>`;
+      setTimeout(function () { document.getElementById("alert-clip").style.display = "none"; }, 600);
+    } else {
+      wrongAnswers++;
+      quizCountdown -= 3;
+      alertArea.innerHTML = `<div class="alert alert-danger" id="alert-clip" role="alert">The answer is wrong! Come on now!</div>`;
+      setTimeout(function () { document.getElementById("alert-clip").style.display = "none"; }, 600);
+    }
+    if (answeredQuestions < quizBank.length) {
+      document.querySelector(`#question_${index}`).setAttribute("style", "display:none;");
+      document.querySelector(`#question_${parseInt(index) + 1}`).setAttribute("style", "display:block;");
+    } else {
+      renderPostScore("end");
+      renderHighScore();
+    }
+    answeredQuestions++;
+  }
+
+  //Start Another Button
+  if (target.matches("button.start-another-btn")) {
+    let initials = document.getElementById("card-input").value.toUpperCase();
+    if (initials) {
+      storeScore(initials);
+      renderHighScore();
+      quizMaker();
+      startDiv.setAttribute("style", "display:none;");
+      const questionOne = document.getElementById("question_1");
+      questionOne.setAttribute("style", "display:block;");
+    } else {
+      alert("Please provide your initials");
+    }
+  }
+  //Start Another Button
+});
+//Answer Checker
+
+//Enter 
+
 //start button event
-startBtn.addEventListener("click", function (event) {
+startBtn.addEventListener("click", (event) => {
   event.preventDefault();
   quizMaker();
   startDiv.setAttribute("style", "display:none;");
@@ -236,3 +271,11 @@ startBtn.addEventListener("click", function (event) {
   questionOne.setAttribute("style", "display:block;");
 });
 //start button event
+
+document.querySelector("#clear-scores").addEventListener("click", (event) => {
+  // this.setAttribute("style", "display:none;")
+  localStorage.clear();
+  renderHighScore();
+});
+
+renderHighScore();

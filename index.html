@@ -17,7 +17,7 @@
 <body>
   <!-- Navbar -->
   <header class="noto-font">
-    <div class="row no-gutters ">
+    <!-- <div class="row no-gutters "> -->
       <div class="col-12 sticky-top">
         <nav class="navbar navbar-name p-0 ">
           <span class="navbar-brand mb-0 h1 navbar-span ml-5">Javascript Quiz</span>
@@ -28,24 +28,22 @@
           <a href="#">View Highscores</a>
         </nav>
       </div> -->
-    </div>
+    <!-- </div> -->
   </header>
   <!-- Navbar -->
 
   <!-- Quiz Section -->
-  <section class="container">
+  <section >
     <div class="padding">
       <div class="row">
         <div class="col-8">
-          <h5>
-            Javascript Quiz
-          </h5>
+          <div id="quiz-timer" ></div>
           <div class="start-btn-div" style="text-align: center;margin-top: 15px;">
             <strong>Welcome to the Javascript Quiz!</strong> <br>
             <p>Good Luck! Have fun!</p>
             <button class="btn btn-info" id="start-btn" style="margin-top: 10px;">Start the Quiz</button>
           </div>
-          <div class="quiz-area">
+          <div id="quiz-area">
           </div>
           <div id="alert-area"></div>
         </div>
@@ -53,7 +51,7 @@
           <h5>
             Highscore
           </h5>
-          <button class="float-right btn btn-info" style="margin-top: -40px;margin-bottom: 10px;">Clear Scores</button>
+          <button class="float-right btn btn-info" id="clear-scores">Clear Scores</button>
           <table class="table">
             <thead>
               <tr>

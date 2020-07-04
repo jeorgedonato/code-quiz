@@ -1,4 +1,6 @@
 //Declaring Variables
+
+//Hard Coding the questions
 let quizBank = [
   {
     id: 1,
@@ -27,7 +29,29 @@ let quizBank = [
     choices: ["margin", "z-index", "display", "visible"],
     answer: "z-index",
     type: "Multiple",
+  },
+  {
+    id: 5,
+    question: "Which of these is not a javascript data type?",
+    choices: ["Number", "String", "Boolean", "Linked List"],
+    answer: "Linked List",
+    type: "Multiple"
+  },
+  {
+    id: 6,
+    question: "Which company developed Javascript?",
+    choices: ["Netscape", "Microsoft", "Apple", "Oracle"],
+    answer: "Netscape",
+    type: "Multiple"
+  },
+  {
+    id: 7,
+    question: "Which of these is used to clear all the localStorage?",
+    choices: ["localStorage.clear()", "LocalStorage.clear()", "clear.localStorage()", "Hey Google! Delete my localStorage"],
+    answer: "localStorage.clear()",
+    type: "Multiple"
   }];
+// Questions
 
 //Initialize a object for highscore
 let highScores = new Object;
@@ -45,6 +69,7 @@ const startDiv = document.querySelector(".start-btn-div");
 const scoreBody = document.querySelector("#score-body");
 let quizTimerDiv = document.querySelector("#quiz-timer");
 const alertArea = document.querySelector("#alert-area");
+const timerLeftSpan = document.querySelector("#time-left");
 //Declaring a variable to put the setinterval to be accessible globally
 let quizStartTimer;
 //Declaring Variables
@@ -76,7 +101,7 @@ let getRandomMotivation = () => {
 let storeScore = (initials) => {
   let storedScores = JSON.parse(localStorage.getItem("scores"));
   const scoreObjInit = {
-    score: currentScore,
+    score: currentScore + quizCountdown,
     correctAnswers: correctAnswers,
     wrongAnswers: wrongAnswers,
     initials: initials,
@@ -100,7 +125,7 @@ let storeScore = (initials) => {
 let renderHighScore = () => {
   quizArea.innerHTML = "";
   quizArea.classList.remove("card");
-  quizTimerDiv.innerHTML = "";
+  quizTimerDiv.setAttribute("style", "display:none;")
   let storedScores = JSON.parse(localStorage.getItem("scores"));
   if (storedScores !== null) {
     const scoreHeader = document.createElement("h5");
@@ -122,7 +147,7 @@ let renderHighScore = () => {
     scoreTable.appendChild(scoreThead);
     const scoreTbody = document.createElement("tbody");
     // document.querySelector("#clear-scores").setAttribute("style", "display:block;");
-    storedScores.sort((a, b) => (a.score < b.score) ? 1 : -1)
+    storedScores.sort((a, b) => (a.score < b.score) ? 1 : -1);
     let iterator = 1;
     for (let i = 0; i < storedScores.length; i++) {
       const scoreTr = document.createElement("tr");
@@ -172,7 +197,10 @@ let quizMaker = () => {
   const shuffledQuiz = shuffleArr(quizBank);
   quizArea.innerHTML = "";
   resetScore();
-  quizStartTimer = setInterval(() => { quizTimerF() }, 1000);;
+  quizTimerDiv.setAttribute("style", "display:block;");
+  timerLeftSpan.textContent = "60 secs";
+  quizStartTimer = setInterval(() => { quizTimerF() }, 1000);
+  // console.log(quizStartTimer)
   quizArea.setAttribute("class", "card")
   for (let i = 0; i < shuffledQuiz.length; i++) {
     let questionDiv = document.createElement("div");
@@ -211,7 +239,7 @@ let quizMaker = () => {
 //Quiz timer function
 let quizTimerF = () => {
   quizCountdown--;
-  quizTimerDiv.innerHTML = `<strong>Time left : ${quizCountdown} secs</strong>`;
+  timerLeftSpan.textContent = `${quizCountdown} secs`;
 
   if (quizCountdown === 0) {
     stopInterval();
@@ -251,7 +279,7 @@ let renderPostScore = (endType) => {
   cardBody.appendChild(cardInput);
   let cardUl = document.createElement("ul");
   cardUl.setAttribute("class", "list-group list-group-flush");
-  cardUl.innerHTML = `<li class="list-group-item">Score : ${currentScore}</li>
+  cardUl.innerHTML = `<li class="list-group-item">Score : ${(currentScore + quizCountdown) < 0 ? 0 : currentScore + quizCountdown} pts</li>
   <li class="list-group-item">Correct Answers : ${correctAnswers}</li>
   <li class="list-group-item">Wrong Answers : ${wrongAnswers}</li>`
   postScoreDiv.appendChild(cardUl);
@@ -288,12 +316,13 @@ quizArea.addEventListener("click", (event) => {
       // setTimeout(() => { document.getElementById("alert-clip").style.display = "none"; }, 600);
     } else {
       wrongAnswers++;
-      quizCountdown -= 3;
+      quizCountdown -= 10;
+      timerLeftSpan.textContent = `${quizCountdown} secs`;
       stateAlert(`The answer is wrong! Come on now!`, 'danger');
       // alertArea.innerHTML = `<div class="alert alert-danger" id="alert-clip" role="alert">The answer is wrong! Come on now!</div>`;
       // setTimeout(() => { document.getElementById("alert-clip").style.display = "none"; }, 600);
     }
-    if (answeredQuestions < quizBank.length) {
+    if (answeredQuestions < quizBank.length && quizCountdown > 0) {
       document.querySelector(`#question_${index}`).setAttribute("style", "display:none;");
       document.querySelector(`#question_${parseInt(index) + 1}`).setAttribute("style", "display:block;");
     } else {

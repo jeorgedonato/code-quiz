@@ -4,7 +4,7 @@
 
 <p align="center">A interactive website that utilizes Javascript Web APIs powered with bootstrap</p>
 
-**Objective**
+**Objective**  
 To make a interactive quiz website about javascript by only using javascript functions and HTML Dom events and elements.
 
 **Technologies Used:**

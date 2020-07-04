@@ -77,3 +77,12 @@ header{
   margin-top: -40px;
   margin-bottom: 10px;
 }
+
+.start-btn-div{
+  text-align: center;
+  margin-top: 15px;
+}
+
+.start-btn-btn{
+  margin-top: 10px;
+}

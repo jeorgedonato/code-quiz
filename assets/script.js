@@ -29,24 +29,29 @@ let quizBank = [
     type: "Multiple",
   }];
 
+//Initialize a object for highscore
 let highScores = new Object;
-let quizArea = document.querySelector("#quiz-area");
+//User Variables
 let currentScore = 0;
 let correctAnswers = 0;
 let wrongAnswers = 0;
 let answeredQuestions = 1;
 let quizCountdown = 60;
+//Select the divs in the HTML
+let quizArea = document.querySelector("#quiz-area");
 const startBtn = document.querySelector("#start-btn");
+const viewScore = document.querySelector("#view-score");
 const startDiv = document.querySelector(".start-btn-div");
 const scoreBody = document.querySelector("#score-body");
 let quizTimerDiv = document.querySelector("#quiz-timer");
+const alertArea = document.querySelector("#alert-area");
 //Declaring a variable to put the setinterval to be accessible globally
 let quizStartTimer;
 //Declaring Variables
 
 // Shuffle Array
 // Source https://www.rosettacode.org/wiki/Knuth_shuffle
-let knuthShuffle = arr => {
+let shuffleArr = arr => {
   let rand, temp, i;
   for (i = arr.length - 1; i > 0; i -= 1) {
     rand = Math.floor((i + 1) * Math.random());//get random between zero and i (inclusive)
@@ -79,9 +84,11 @@ let storeScore = (initials) => {
     timeLeft: quizCountdown
   };
   if (storedScores === null) {
+    //Init the scores as array then push
     storedScores = [];
     storedScores.push(scoreObjInit);
   } else {
+    //Push the obj in the array
     storedScores.push(scoreObjInit);
   }
   localStorage.setItem("scores", JSON.stringify(storedScores));
@@ -91,10 +98,30 @@ let storeScore = (initials) => {
 
 //renderHighScore
 let renderHighScore = () => {
-  scoreBody.innerHTML = "";
+  quizArea.innerHTML = "";
+  quizArea.classList.remove("card");
+  quizTimerDiv.innerHTML = "";
   let storedScores = JSON.parse(localStorage.getItem("scores"));
   if (storedScores !== null) {
-    document.querySelector("#clear-scores").setAttribute("style", "display:block;");
+    const scoreHeader = document.createElement("h5");
+    scoreHeader.textContent = 'Highscores';
+    quizArea.appendChild(scoreHeader);
+    const scoreBtnClear = document.createElement("button");
+    scoreBtnClear.setAttribute("class", "float-right btn btn-info");
+    scoreBtnClear.setAttribute("id", "clear-scores");
+    scoreBtnClear.textContent = "Clear Scores";
+    quizArea.appendChild(scoreBtnClear);
+    const scoreTable = document.createElement("table");
+    scoreTable.setAttribute("class", "table");
+    const scoreThead = document.createElement("thead");
+    scoreThead.innerHTML = `<tr>
+    <th scope="col">#</th>
+    <th scope="col">Initials</th>
+    <th scope="col">Score</th>
+    </tr>`
+    scoreTable.appendChild(scoreThead);
+    const scoreTbody = document.createElement("tbody");
+    // document.querySelector("#clear-scores").setAttribute("style", "display:block;");
     storedScores.sort((a, b) => (a.score < b.score) ? 1 : -1)
     let iterator = 1;
     for (let i = 0; i < storedScores.length; i++) {
@@ -102,11 +129,29 @@ let renderHighScore = () => {
       scoreTr.innerHTML = `<th scope="row">${iterator}</th>
       <th >${storedScores[i].initials}</th>
       <th >${storedScores[i].score}</th>`
-      scoreBody.appendChild(scoreTr);
+      scoreTbody.appendChild(scoreTr);
       iterator++;
     }
+    scoreTable.appendChild(scoreTbody);
+    quizArea.appendChild(scoreTable);
+    const backBtn = document.createElement("button");
+    backBtn.setAttribute("class", "float-right btn btn-info");
+    backBtn.setAttribute("id", "back-btn");
+    backBtn.textContent = "Go Back";
+    quizArea.appendChild(backBtn);
   } else {
-    document.querySelector("#clear-scores").setAttribute("style", "display:none;");
+    const scoreHeader = document.createElement("h5");
+    scoreHeader.textContent = 'Highscores';
+    quizArea.appendChild(scoreHeader);
+    const spanCentered = document.createElement("div");
+    spanCentered.setAttribute("style", "font-size:20px;text-align:center;")
+    spanCentered.innerHTML = `<span>Nothing to show here</span>`;
+    quizArea.appendChild(spanCentered);
+    const backBtn = document.createElement("button");
+    backBtn.setAttribute("class", "float-right btn btn-info");
+    backBtn.setAttribute("id", "back-btn");
+    backBtn.textContent = "Go Back";
+    quizArea.appendChild(backBtn);
   }
 };
 //renderHighScore
@@ -124,7 +169,7 @@ let resetScore = () => {
 
 //Quiz Maker
 let quizMaker = () => {
-  const shuffledQuiz = knuthShuffle(quizBank);
+  const shuffledQuiz = shuffleArr(quizBank);
   quizArea.innerHTML = "";
   resetScore();
   quizStartTimer = setInterval(() => { quizTimerF() }, 1000);;
@@ -142,7 +187,7 @@ let quizMaker = () => {
     if (shuffledQuiz[i].type === "Multiple") {
       let choiceUl = document.createElement("ul");
       choiceUl.setAttribute("class", "list-group")
-      let shuffleChoices = knuthShuffle(shuffledQuiz[i].choices);
+      let shuffleChoices = shuffleArr(shuffledQuiz[i].choices);
       for (let j = 0; j < shuffleChoices.length; j++) {
         let choiceLi = document.createElement("li");
         choiceLi.setAttribute("class", "list-group-item");
@@ -171,7 +216,7 @@ let quizTimerF = () => {
   if (quizCountdown === 0) {
     stopInterval();
     renderPostScore("time");
-    renderHighScore();
+    // renderHighScore();
   }
 }
 //Quiz timer function
@@ -213,15 +258,22 @@ let renderPostScore = (endType) => {
   let cardBodyTwo = document.createElement("div");
   cardBodyTwo.setAttribute("class", "card-body");
   cardBodyTwo.innerHTML = `
-    <button class="btn btn-info start-another-btn" >Start Another Quiz</button>`
+    <button class="btn btn-info start-another-btn" >Start Another Quiz</button>
+    <button class="btn btn-info view-score-btn">View Highscores</button>`
   postScoreDiv.appendChild(cardBodyTwo);
 };
 //render post Score
 
+//Show Alert
+let stateAlert = (content, type) => {
+  alertArea.innerHTML = `<div class="alert alert-${type}" id="alert-clip" role="alert">${content}</div>`;
+  setTimeout(() => { document.getElementById("alert-clip").style.display = "none"; }, 600);
+};
+//Show Alert
+
 //Answer Checker
 quizArea.addEventListener("click", (event) => {
   let target = event.target;
-  const alertArea = document.querySelector("#alert-area");
   if (target.matches("li.li-choice") === true) {
     let arrId = target.getAttribute("data-id")
     let choice = target.getAttribute("data-choice");
@@ -231,20 +283,22 @@ quizArea.addEventListener("click", (event) => {
     if (correctAnswer === choice) {
       currentScore += 5;
       correctAnswers++;
-      alertArea.innerHTML = `<div class="alert alert-success" id="alert-clip" role="alert">You're ${getRandomMotivation()}! Keep up the good work!</div>`;
-      setTimeout(() => { document.getElementById("alert-clip").style.display = "none"; }, 600);
+      stateAlert(`You're ${getRandomMotivation()}! Keep up the good work!`, 'success');
+      // alertArea.innerHTML = `<div class="alert alert-success" id="alert-clip" role="alert">You're ${getRandomMotivation()}! Keep up the good work!</div>`;
+      // setTimeout(() => { document.getElementById("alert-clip").style.display = "none"; }, 600);
     } else {
       wrongAnswers++;
       quizCountdown -= 3;
-      alertArea.innerHTML = `<div class="alert alert-danger" id="alert-clip" role="alert">The answer is wrong! Come on now!</div>`;
-      setTimeout(() => { document.getElementById("alert-clip").style.display = "none"; }, 600);
+      stateAlert(`The answer is wrong! Come on now!`, 'danger');
+      // alertArea.innerHTML = `<div class="alert alert-danger" id="alert-clip" role="alert">The answer is wrong! Come on now!</div>`;
+      // setTimeout(() => { document.getElementById("alert-clip").style.display = "none"; }, 600);
     }
     if (answeredQuestions < quizBank.length) {
       document.querySelector(`#question_${index}`).setAttribute("style", "display:none;");
       document.querySelector(`#question_${parseInt(index) + 1}`).setAttribute("style", "display:block;");
     } else {
       renderPostScore("end");
-      renderHighScore();
+      // renderHighScore();
     }
     answeredQuestions++;
   }
@@ -254,17 +308,51 @@ quizArea.addEventListener("click", (event) => {
     let initials = document.getElementById("card-input").value.toUpperCase();
     if (initials) {
       storeScore(initials);
-      renderHighScore();
+      // renderHighScore();
+      stateAlert(`Score saved!`, 'success');
       quizMaker();
       startDiv.setAttribute("style", "display:none;");
       const questionOne = document.getElementById("question_1");
       questionOne.setAttribute("style", "display:block;");
     } else {
-      alertArea.innerHTML = `<div class="alert alert-danger" id="alert-clip" role="alert">Please provide your initials</div>`;
-      setTimeout(() => { document.getElementById("alert-clip").style.display = "none"; }, 600);
+      stateAlert(`Please provide your initials`, 'danger');
+      // alertArea.innerHTML = `<div class="alert alert-danger" id="alert-clip" role="alert">Please provide your initials</div>`;
+      // setTimeout(() => { document.getElementById("alert-clip").style.display = "none"; }, 600);
     }
   }
   //Start Another Button
+
+  //Clear scores
+  if (target.matches("#clear-scores")) {
+    // this.setAttribute("style", "display:none;")
+    localStorage.clear();
+    renderHighScore();
+    stateAlert(`Highscores Cleared!`, 'danger');
+  }
+  //Clear Scores
+
+  //Go back button
+  if (target.matches("#back-btn")) {
+    quizArea.innerHTML = "";
+    startDiv.setAttribute("style", "display:block;");
+  }
+  //Go back button
+
+  //View Score Btn
+  if (target.matches(".view-score-btn")) {
+    let initials = document.getElementById("card-input").value.toUpperCase();
+    if (initials) {
+      storeScore(initials);
+      // renderHighScore();
+      renderHighScore();
+      stateAlert(`Score saved!`, 'success');
+    } else {
+      stateAlert(`Please provide your initials`, 'danger');
+      // alertArea.innerHTML = `<div class="alert alert-danger" id="alert-clip" role="alert">Please provide your initials</div>`;
+      // setTimeout(() => { document.getElementById("alert-clip").style.display = "none"; }, 600);
+    }
+  }
+  //View Score Btn
 });
 //Answer Checker
 
@@ -280,10 +368,12 @@ startBtn.addEventListener("click", (event) => {
 });
 //start button event
 
-document.querySelector("#clear-scores").addEventListener("click", (event) => {
-  // this.setAttribute("style", "display:none;")
-  localStorage.clear();
+//View Score
+viewScore.addEventListener("click", (event) => {
+  event.preventDefault();
   renderHighScore();
+  startDiv.setAttribute("style", "display:none;");
 });
+//View Score
 
-renderHighScore();
+// renderHighScore();
